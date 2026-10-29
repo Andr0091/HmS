@@ -61,7 +61,7 @@ Additional application layers will be documented here as they are implemented an
 
 ```properties
 spring.application.name=hms
-spring.datasource.url=jdbc:mysql://root:3306/HMSdb
+spring.datasource.url=jdbc:mysql://localhost:3306/HMSdb
 spring.datasource.username=${HMS_DB_USERNAME}
 spring.datasource.password=${HMS_DB_PASSWORD}
 spring.jpa.hibernate.ddl-auto=validate
