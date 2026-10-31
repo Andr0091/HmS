@@ -1,10 +1,16 @@
 package com.hms.hms.service;
 
 import com.hms.hms.dto.UserDto.UserCreateDto;
+import com.hms.hms.dto.UserDto.UserResponseDto;
 import com.hms.hms.entity.User;
+import com.hms.hms.exception.DuplicateUserException;
+import com.hms.hms.exception.UserNotFoundException;
 import com.hms.hms.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -17,6 +23,7 @@ public class UserService {
         this.encoder = encoder;
     }
 
+    // create
     public Long createUser(UserCreateDto dto) {
 
         validateNewUser(dto);
@@ -42,14 +49,51 @@ public class UserService {
         return savedUser.getId();
     }
 
+    // validate user
     private void validateNewUser(UserCreateDto dto) {
 
         if (repository.existsByEmail(dto.email())) {
-            throw new IllegalArgumentException("E-mail já cadastrado");
+            throw new DuplicateUserException(
+                    "Email already exists"
+            );
         }
 
         if (repository.existsByCpf(dto.cpf())) {
-            throw new IllegalArgumentException("CPF já cadastrado");
+            throw new DuplicateUserException(
+                    "CPF already exists"
+            );
         }
+    }
+
+    // find user by id
+    public UserResponseDto findUserById(Long id) {
+        User user = repository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found"
+                ));
+
+        return new UserResponseDto(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail()
+        );
+    }
+
+    // show all users
+    public List<UserResponseDto> findAllUsers() {
+        List<User> users = repository.findAll();
+        List<UserResponseDto> response = new ArrayList<>();
+
+        for (User user : users) {
+            response.add(new UserResponseDto(
+                    user.getId(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getEmail()
+            ));
+        }
+
+        return response;
     }
 }
